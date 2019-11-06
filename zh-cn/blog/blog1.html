@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="keywords1,keywords2,keywords3" />
+	<meta name="description" content="some description" />
+	<!-- 网页标签标题 -->
+	<title>title</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/blogDetail.css" />
+</head>
+<body>
+	<div id="root"><div class="blog-detail-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/zh-cn/index.html" target="_self">首页</a></li><li class="menu-item menu-item-normal"><a href="/zh-cn/docs/doc1.html" target="_self">文档</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/zh-cn/blog/index.html" target="_self">博客</a></li></ul></div></div></header><section class="blog-content markdown-body"><h1>JWT用户无感知刷新方案</h1>
+<p>需求:	JWT用户无感知刷新,多个携带过期JWT的请求几乎同时访问不能出错,活跃用户JWT防持续盗用,单端在线。</p>
+<h3>Redis单实例实现:</h3>
+<p>每次Http请求带着JWT来访问，服务端都要按如下步骤验证/刷新令牌。</p>
+<ol>
+<li>
+<p>先校验JWT是否合法(只是过期,不影响校验通过)  或 <strong>数据1</strong>是否存在, 不满足任一条件,返回401，让用户重新登录。</p>
+</li>
+<li>
+<p>判断<strong>数据2</strong>是否存在,存在就不需要继续验证了, <code>结束令牌校验，继续本次请求的业务逻辑</code>。</p>
+</li>
+<li>
+<p>验证令牌是否过期，<code>没过期</code>就<code>结束令牌校验，继续本次请求的业务逻辑</code>(此时,JWT合法性校验通过, <strong>数据1</strong>存在,不存在<strong>数据2</strong>)。</p>
+</li>
+<li>
+<p>令牌已过期,拿<code>旧令牌</code>(当前令牌),和<code>新令牌</code>(新生成的),调用lua脚本操作Redis刷新令牌</p>
+</li>
+<li>
+<p>原子操作lua逻辑:  根据用户ID获取<strong>数据1</strong>的值，与<code>旧令牌</code>一致 把值换成<code>新令牌</code> 存入redis ,  并且以<code>旧令牌</code>为KEY 保存<strong>数据2</strong>到redis, 返回 <code>SUCCESS</code>; 与<code>旧令牌</code>不一致(旧令牌没有刷新权限) 返回 <code>FAIL</code></p>
+</li>
+<li>
+<p>上一步 返回的结果是 <code>SUCCESS</code>,把<code>新令牌</code>放回http响应头中,并在http响应头中放入<code>isnewToken</code>标志着这是个新令牌</p>
+</li>
+</ol>
+<p>客户端统一拦截<code>请求</code>和<code>响应</code>, 每次发送请求之前,把本地保存的令牌放到请求头里, 每次收到响应, 判断有没有<code>isnewToken</code>, 如果有,就把响应头中的令牌保存到本地。</p>
+<p>redis数据结构 string</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">简称</th>
+<th style="text-align:left">key</th>
+<th style="text-align:left">value</th>
+<th style="text-align:left">有效时长(秒)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">数据1</td>
+<td style="text-align:left">用户ID</td>
+<td style="text-align:left">令牌</td>
+<td style="text-align:left">T1</td>
+<td>令牌可以无感知刷新的时长,比如：7天<code>60*60*24*7</code></td>
+</tr>
+<tr>
+<td style="text-align:left">数据2</td>
+<td style="text-align:left">令牌</td>
+<td style="text-align:left">用户ID</td>
+<td style="text-align:left">T2</td>
+<td>平滑过渡时长,比如：30秒</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java">   <span class="hljs-comment">/**
+     * 登录/JWT过期后尝试刷新
+     * <span class="hljs-doctag">@param</span> key 用户ID
+     * <span class="hljs-doctag">@param</span> oldJwt 旧JWT
+     * <span class="hljs-doctag">@param</span> newJwt 新JWT
+     * <span class="hljs-doctag">@return</span> SUCCESS:成功, FAIL:失败
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">tryRefreshToken</span><span class="hljs-params">(String Key, String oldJwt, String newJwt)</span> </span>{
+        String luaScript =
+            <span class="hljs-string">"-- 根据key(用户ID）获取令牌 \n"</span> +
+            <span class="hljs-string">"local token = redis.call('get',KEYS[1])\n"</span> +
+            <span class="hljs-string">"-- 取到的token为空, 返回‘FAIL’ \n"</span> +
+            <span class="hljs-string">"if(not(tokens) or 0==#tokens) then return 'FAIL' end\n"</span> +
+            <span class="hljs-string">"-- 判断取到的token,是否与旧令牌一致 \n"</span> +
+            <span class="hljs-string">"-- 不一致,不能更新令牌 返回'FAIL' \n"</span> +
+            <span class="hljs-string">"if(token ~= ARGV[1]) then return 'FAIL' end\n"</span> +
+ <span class="hljs-string">"redis.call('set',KEYS[1],ARGV[2],'XX','EX',604800) \n"</span> +
+            <span class="hljs-string">"-- 保存平滑过渡令牌\n"</span> +
+            <span class="hljs-string">"redis.call('set',ARGV[1],KEYS[1],'NX','EX',30) \n"</span> +
+            <span class="hljs-string">"return 'SUCCESS'"</span>;
+
+        <span class="hljs-keyword">return</span> jedis.eval(luaScript, <span class="hljs-number">1</span>, key, oldJwt, newJwt));
+    }
+</code></pre>
+</section><footer class="footer-container"><div class="footer-body"><div class="copyright"><span>Copyright © 2019 刘志新</span></div></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/blogDetail.js"></script>
+</body>
+</html>

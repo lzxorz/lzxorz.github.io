@@ -1,0 +1,30 @@
+{
+  "en-us": [
+    {
+      "filename": "demo1.md",
+      "link": "/en-us/docs/demo1.html",
+      "meta": {}
+    },
+    {
+      "filename": "demo2.md",
+      "link": "/en-us/docs/demo2.html",
+      "meta": {}
+    },
+    {
+      "filename": "demo3.md",
+      "link": "/en-us/docs/dir/demo3.html",
+      "meta": {}
+    }
+  ],
+  "zh-cn": [
+    {
+      "filename": "doc1.md",
+      "link": "/zh-cn/docs/doc1.html",
+      "meta": {
+        "title": "文档",
+        "keywords": "Freeman,快速开发框架",
+        "description": "Freeman快速开发框架"
+      }
+    }
+  ]
+}

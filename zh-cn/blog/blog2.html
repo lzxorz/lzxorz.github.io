@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="blog2" />
+	<meta name="description" content="blog2" />
+	<!-- 网页标签标题 -->
+	<title>blog2</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/blogDetail.css" />
+</head>
+<body>
+	<div id="root"><div class="blog-detail-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/zh-cn/index.html" target="_self">首页</a></li><li class="menu-item menu-item-normal"><a href="/zh-cn/docs/doc1.html" target="_self">文档</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/zh-cn/blog/index.html" target="_self">博客</a></li></ul></div></div></header><section class="blog-content markdown-body"><h1>基础概念</h1>
+<p><strong>Image(镜像)</strong></p>
+<p>即，镜像文件，可以还原出同样功能的文件副本。
+例如: 我们常接触的熟悉的 电脑的操作系统，需要使用 保存着操作系统镜像文件的光盘/U盘/硬盘 把 操作系统 安装到电脑主机中，然后开机 运行起来的 才是真正的 <code>操作系统</code>
+docker <strong>image</strong> 也是同样的道理, 是用来启动容器的只读的镜像文件。</p>
+<p><strong>Container(容器)</strong></p>
+<p>启动一个镜像就是一个容器，容器是在当前linux系统创建一个隔离环境，多个容器之间不会相互影响，保证容器中的程序运行在一个相对安全的环境中。</p>
+<p><strong>Repository(仓库)</strong></p>
+<p>即，共享和管理Docker镜像的仓库</p>
+<h1>Docker常用命令</h1>
+<p><strong>查看 docker 版本或信息</strong></p>
+<pre><code class="language-shell">    docker version
+    # 或者
+    docker info
+</code></pre>
+<h2>docker 服务管理</h2>
+<p><strong>启动</strong></p>
+<pre><code class="language-shell">    # service 命令的用法
+    sudo service docker start # 启动docker服务
+    sudo service docker stop # 停止docker服务
+    sudo service docker restart # 重启docker服务
+
+    # systemctl 命令的用法
+    sudo systemctl start docker # 启动docker服务
+    sudo systemctl stop docker # 停止docker服务
+    sudo systemctl restart docker # 重启docker服务
+</code></pre>
+<h2>镜像相关命令</h2>
+<p><strong>列出本地的镜像</strong></p>
+<p><code>docker images # 等同于 docker image ls</code></p>
+<p>输出内容列的含义:</p>
+<ul>
+<li>REPOSITORY：镜像所属仓库名称。</li>
+<li>TAG:镜像标签。默认是 latest,表示最新。</li>
+<li>IMAGE ID：镜像 ID，表示镜像唯一标识。</li>
+<li>CREATED：镜像创建时间。</li>
+<li>SIZE: 镜像大小。</li>
+</ul>
+<p><strong>搜索镜像</strong></p>
+<p>docker search命令搜索存放在 Docker Hub(这是docker官方提供的存放所有docker镜像软件的地方，类似maven的中央仓库)中的镜像。</p>
+<p><code>docker search 关键词</code></p>
+<p>输出内容列的含义：</p>
+<ul>
+<li>NAME:镜像仓库名称。</li>
+<li>DESCRIPTION:镜像仓库描述。</li>
+<li>STARS：镜像仓库收藏数，表示该镜像仓库的受欢迎程度，类似于 GitHub的 stars0</li>
+<li>OFFICAL:表示是否为官方仓库，该列标记为[0K]的镜像均由各软件的官方项目组创建和维护。</li>
+<li>AUTOMATED：表示是否是自动构建的镜像仓库。</li>
+</ul>
+<p><strong>拉取docker镜像</strong></p>
+<p>拉取一个镜像，需要指定Docker Registry的地址和端口号，默认使用官方仓库<code>Docker Hub</code>
+需要指定仓库名和标签，仓库名由作者名和软件名组成，标签默认使用<code>latest</code>，仓库名和标签唯一确定一个镜像。</p>
+<p><code>docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]</code></p>
+<p>拉取非官方的第三方镜像，需要指定完整仓库名，例如：</p>
+<p><code>docker pull mysql/mysql-server:latest</code></p>
+<p><strong>删除本地镜像</strong></p>
+<p>如果有使用该镜像创建的容器未删除，则不允许删除镜像。加上<code>-f</code>，强制删除</p>
+<pre><code class="language-shell">    # docker rmi &lt;=&gt; dockere image rm
+
+    docker rmi &lt;镜像ID&gt;
+
+    # 删除全部image -f: 强制删除
+    docker rmi [-f] $(docker images -q)
+
+    # 删除所有不使用的镜像
+    docker image prune -f -a # 等同于 docker image prune --force --all
+
+</code></pre>
+<h2>容器相关命令</h2>
+<p><strong>查看容器</strong></p>
+<pre><code class="language-shell">    # docker  ps &lt;=&gt; docker container ls
+    docker  ps  # 正在运行的容器
+    docker  ps -a # 列出所有的容器(包括未运行的)
+    docker  ps -aq # 列出所有的容器(包括未运行的)ID
+    docker  inspect &lt;容器ID&gt;/&lt;容器名称&gt; # 查看容器信息
+</code></pre>
+<p>输出内容列含义:</p>
+<ul>
+<li>CONTAINER_ID：表示容器 ID。</li>
+<li>IMAGE:表示镜像名称。</li>
+<li>COMMAND：表示启动容器时运行的命令。</li>
+<li>CREATED：表示容器的创建时间。</li>
+<li>STATUS：表示容器运行的状态。UP表示运行中， Exited表示已停止。</li>
+<li>PORTS:表示容器对外的端口号。</li>
+<li>NAMES:表示容器名称。该名称默认由 Docker自动生成，也可使用 docker run命令的--name选项自行指定的名称。</li>
+</ul>
+<p><strong>新建并启动容器</strong>
+先检查本地是否存在指定镜像。如果本地不存在该名称的镜像，Docker就会自动从Docker Hub下载镜像并启动容器。</p>
+<p><code>docker run &lt;镜像ID&gt;/&lt;镜像名&gt;</code></p>
+<p>常用的选项</p>
+<ul>
+<li>
+<p>-d 后台运行(守护进程形式)</p>
+</li>
+<li>
+<p>-p 宿主机端口:容器端口 #开放容器端口到宿主机端口</p>
+</li>
+<li>
+<p>-i --interactive=true|false 默认是 false： 开启交互式</p>
+</li>
+<li>
+<p>-t --tty=true | false 模式 false ：开启终端</p>
+</li>
+<li>
+<p>--name 自定义容器名称</p>
+</li>
+<li>
+<p>--net  网络配置参数</p>
+<ul>
+<li>--net选项：指定网络模式，该选项有以下可选参数：</li>
+<li>--net=bridge:默认选项，表示连接到默认的网桥。</li>
+<li>--net=host:容器使用宿主机的网络。</li>
+<li>--net=container:NAME-or-ID：告诉 Docker让新建的容器使用已有容器的网络配置。</li>
+<li>--net=none：不配置该容器的网络，用户可自定义网络配置。</li>
+</ul>
+</li>
+</ul>
+<p>例子:</p>
+<pre><code class="language-shell">    # 启动一个Nginx容器。通过 http://Docker宿主机IP:91/ 访问。
+    docker run -d -p 91:80 nginx
+
+    # 开启终端交互式
+    docker run -it xxx /bin/base
+
+    # 自定义容器名称
+    docker run --name=sayhello -it  xxx /bin/bash
+
+    # 注意，这里的容器名字叫：mysql5.7-master-node-01，mysql的root用户密码是：123456，映射宿主机子的端口3406到容器的端口3306，仓库名mysql和标签(tag）唯一确定了要指定的镜像
+    docker run --name mysql5.7-master-node-01 -p 3406:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+</code></pre>
+<p><strong>容器重命名</strong></p>
+<p><code>docker rename 旧名称 新名称</code></p>
+<p><strong>容器跟着docker启动而启动</strong></p>
+<pre><code class="language-shell"><span class="hljs-meta">#</span><span class="bash"> docker container update</span>
+docker update --restart=always 容器名字
+</code></pre>
+<p><strong>复制文件</strong></p>
+<pre><code class="language-shell">    # docker  cp &lt;=&gt; docker container cp
+    
+    # 从容器到宿主机复制
+    # docker  cp &lt;容器ID&gt;/&lt;容器名称&gt;:容器路径       宿主机路径         
+    docker cp tomcat:/webapps/js/text.js /home/admin
+
+    # 从宿主机到容器复制
+    #docker cp 宿主路径中文件      &lt;容器ID&gt;/&lt;容器名称&gt;:容器路径   
+    docker cp /home/admin/text.js tomcat:/webapps/js
+</code></pre>
+<p><strong>容器 启动、停止、重启、杀死、删除</strong></p>
+<pre><code class="language-shell">    # 启动(已停止)的容器
+    docker start  [-i] &lt;容器ID&gt;/&lt;容器名称&gt;
+    
+    # 启动所有容器
+    docker start $(docker ps -a | awk '{ print $1}' | tail -n +2)
+
+    # 停止容器
+    # docker stop &lt;=&gt; docker container stop
+    docker stop &lt;容器ID&gt;/&lt;容器名称&gt;
+
+<span class="hljs-meta">   #</span><span class="bash"> 停止所有容器</span>
+   docker stop $(docker ps -a | awk '{ print $1}' | tail -n +2)
+
+    # 重启
+    docker restart &lt;容器ID&gt;/&lt;容器名称&gt;
+
+    # 强制停止容器(发送 SIGKILL信号来强制停止容器)
+    docker kill &lt;容器ID&gt;/&lt;容器名称&gt;
+
+    # 以守护进程形式继续运行容器
+    ctrl + p ctrl + q
+
+    # 删除容器 docker container rm
+    # docker rm &lt;=&gt; docker container rm
+    docker rm &lt;容器ID&gt;/&lt;容器名称&gt;
+
+    # 删除所有容器
+    docker rm $(docker ps -aq)
+
+    # 删除所有停止的容器
+    docker container prune
+
+</code></pre>
+<p><strong>进入容器</strong></p>
+<p>用于进入一个正在运行的docker容器。如果docker run命令运行容器的时候，没有使用-it参数，就要用这个命令进入容器。一旦进入了容器，就可以在容器的 Shell 执行命令了</p>
+<p><code>docker container exec -it &lt;容器ID&gt;/&lt;容器名称&gt; /bin/bash</code></p>
+<p><strong><s>进入容器</s></strong></p>
+<p><code>docker attach &lt;容器ID&gt;/&lt;容器名称&gt;</code>，已过时的命令，退出会导致容器停止，推荐使用docker exec来实现相同的功能。</p>
+<p><strong>查看容器日志</strong></p>
+<pre><code class="language-shell">    docker logs &lt;容器ID&gt;/&lt;容器名称&gt; # 等同于 docker container logs &lt;容器ID&gt;/&lt;容器名称&gt;
+
+    docker logs [-f] [-t] [ --tail] &lt;容器ID&gt;/&lt;容器名称&gt;
+    # -f   --follows=true|false 默认为 false
+    # -t   --timestamps=true| false 默认为 false
+    #  --tail =“all"
+</code></pre>
+<p><strong>查看容器内的进程</strong></p>
+<p><code>docker top &lt;容器ID&gt;/&lt;容器名称&gt;</code></p>
+<p><strong>在运行的容器中启动新的进程</strong></p>
+<p><code>docker exec [-d] [-i] [-t] 容器名称 [command] [args….]</code></p>
+<p><strong>停止守护进程形式容器</strong></p>
+<pre><code class="language-shell">    docker  stop &lt;容器ID&gt;/&lt;容器名称&gt;
+    docker  kill   &lt;容器ID&gt;/&lt;容器名称&gt;
+</code></pre>
+<h1>Dockerfile常用的指令</h1>
+<p><a href="https://blog.csdn.net/y472360651/article/details/81289141">这部分内容,主要参考来源</a></p>
+<p>Dockerfile是一个文本文件，其中包含了若干条指令，指令描述了构建镜像的细节，DockerFile的每一个指令都会新建一个镜像层。</p>
+<p>指令格式：
+<code>INSTRUCTION argument # INSTRUCTION不分大小写，推荐大写</code>。</p>
+<p><strong>FROM</strong></p>
+<p>FROM 是用于指定构建使用的基础镜像。同一个 Dockerfile中可以多次使用 FROM 创建多个镜像。不不以任何镜像为基础的写法<code>FROM scratch</code>。</p>
+<p>指令语法:</p>
+<pre><code class="language-shell">    FROM &lt;image&gt;
+    FROM &lt;image&gt;:&lt;tag&gt;
+    FROM &lt;image&gt;:&lt;digest&gt;
+</code></pre>
+<p>eg:</p>
+<p><code>FROM nginx #从本地的镜像仓库里拉取ngxin的docker镜像</code>
+<code>FROM mysql:5.7</code></p>
+<p><strong>RUN</strong>
+运行指定的命令，只在docker build时执行。每个 RUN 指令会在原有的镜像基础上添加了一个改动层，原有的镜像不会有变化。尽量把需要执行的多个shell命令 用一个RUN指令完成。</p>
+<p>指令语法：</p>
+<p><code>RUN &lt;command&gt;</code></p>
+<p>eg:</p>
+<p><code>RUN yum update &amp;&amp; yum install openjdk-8-jdk -y &amp;&amp; yum clean all</code></p>
+<p><strong>COPY</strong></p>
+<p>复制本地主机的 &lt;源路径&gt; (Dockerfile 所在目录的相对路径，只能是本地主机的)的文件或文件夹到容器中的 &lt;目标路径&gt;。当使用本地目录为源目录时，推荐使用 COPY 。</p>
+<p>指令语法：</p>
+<p><code>COPY &lt;源路径&gt; &lt;目标路径&gt;</code></p>
+<p>eg:</p>
+<pre><code class="language-shell">    COPY . /app
+    COPY app.tar.gz /app
+    # 源路径可以是多个，甚至是通配符，其通配规则只需要满足GO语言的filepath.Math规则即可
+    COPY ./test1.py ./test2.py /test/
+    COPY ./t*.py /test/
+    COPY ./test?.py /test/
+</code></pre>
+<p><strong>ADD</strong></p>
+<p>添加文件，把本地主机的&lt;源路径&gt;的文件或文件夹复制到容器&lt;目标路径&gt;，&lt;源路径&gt;可以是Dockerfile所在目录的相对路径，也可以是一个URL的链接，还可以是压缩文件。</p>
+<p>指令语法：</p>
+<p><code>ADD &lt;源路径&gt; &lt;目标路径&gt;</code></p>
+<p>eg:</p>
+<pre><code class="language-shell">    ADD nginx.conf /etc/nginx/nginx.conf
+    ADD app.tar.gz /app/app
+    # 远程URL，Docker引擎会自动帮我们将远程URL的文件下载下来到目标路径下
+    ADD http://192.168.0.89:5000/test.py /test/
+    
+    # 压缩格式为gzip、bzip2以及xz的情况下，ADD指令都会将其解压缩
+    ADD docker2.tar /test/
+</code></pre>
+<p>非常值得注意的是，目标路径为一个URL时，会将其自动下载到目标路径下，但是其权限被自动设置成了600，如果这并不是你想要的权限，那么你还需要额外增加一层RUN命令进行更改，另外，如果下载的是一个压缩包，同样你还需要额外增加一层RUN命令进行解压缩。所以，在这种情况下，你还不如指定只用一层RUN，使用curl或者wget工具进行下载，并更改权限，然后进行解压缩，最后清理无用文件！</p>
+<p>当你的源路径为压缩文件并且不想让Docker引擎将其自动解压缩，这个时候就不可以使用ADD命令，你可以使用COPY命令进行完成！</p>
+<p>其实ADD命令并不实用，并不推荐使用！！！</p>
+<p><strong>CMD</strong></p>
+<p>设置启动容器时默认执行的命令(docker run 或者 docker start)，CMD指令可以包含可执行文件。如果不包含可执行文件 就要用 ENTRYPOINT 指定一个，然后 CMD 指令的参数就会作为ENTRYPOINT的参数。如果一个Dockerfile里面有多条CMD指令，最后一个生效。
+设置了CMD指令后，在执行 <code>docker run</code> 的时候如果指定要执行的命令会覆盖掉 Dockerfile 中的 CMD 指令。</p>
+<p>指令语法有三种格式：</p>
+<pre><code class="language-shell">    CMD ["可执行文件","参数1","参数2",...] #推荐使用 exec 形式。
+    CMD ["参数1","参数2"] #无可执行程序形式
+    CMD command 参数1 参数2 #shell 形式(默认调用 /bin/sh -c 执行命令)。
+</code></pre>
+<p>启动 /app：<code>CMD [&quot;app.py&quot;]</code></p>
+<p>使用<code>docker run</code> 的时候指定要执行的命令会覆盖掉 Dockerfile 中的 CMD 指令</p>
+<pre><code class="language-shell">    # Dockerfile
+    FROM ubuntu
+    CMD ["echo", "Hello Docker!"]
+</code></pre>
+<p>我们将其构建成成镜像ubuntu:v1.1，下面，我们以此镜像为基础创建并启动一个容器，如下：</p>
+<p><code>docker run -it ubuntu:v1.1 cat /etc/os-release</code></p>
+<p>那么容器只会执行cat /etc/os-release命令，也就是说在控制台只会输出系统版本信息，并不会输出'Hello Docker!'。</p>
+<p><strong>ENTRYPOINT</strong></p>
+<p>容器入口，和CMD指令的目的一样，设置Docker容器启动时执行的命令。ENTRYPOINT在docker run命令中同样也可以进行指定，只不过比CMD指令来的繁琐一些，需要指定--entrypoint参数。同样，在docker run命令中指定了--entrypoint参数的话，会覆盖Dockerfile中ENTRYPOINT上的指令。一个 Dockerfile 中如果有多个ENTRYPOINT，最后一个生效。</p>
+<p>ENTRYPOINT 命令也有两种格式：</p>
+<pre><code class="language-shell">ENTRYPOINT ["executable", "param1", "param2"] #推荐使用 exec形式
+ENTRYPOINT command param1 param2 #shell 形式
+</code></pre>
+<p>eg:</p>
+<p><code>ENTRYPOINT [&quot;python&quot;]</code></p>
+<p>当指定了ENTRYPOINT指令时，CMD指令里的命令性质将会发生改变！CMD指令中的内容将会以参数形式传递给ENTRYPOINT指令中的命令，如下：</p>
+<pre><code class="language-shell">FROM ubuntu
+ENTRYPOINT ["rm", "docker2"]
+CMD ["-rf"]
+</code></pre>
+<p>其实，它真正执行的命令将会是：</p>
+<p><code>rm docker2 -rf</code></p>
+<p>从例子中可以看出，ENTRYPOINT指令和CMD指令非常的相似，也很容易将其搞混，就比如上面的例子，就可以完全使用一条CMD指令<code>CMD [&quot;rm&quot;, &quot;docker2&quot;, &quot;-rf&quot;]</code>来完成。这两个指令到底有什么区别，为什么要同时保留这两条指令呢？</p>
+<p>我们可以使用ENTRYPOINT指令和CMD指令相结合，使得在创建并启动时要执行的命令更加灵活！有如下Dockerfile：</p>
+<pre><code class="language-shell">FROM ubuntu
+RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; rm -rf /var/lib/apt/lists/*
+ENTRYPOINT ["curl", "-s", "http://ip.cn"]
+</code></pre>
+<p>此时，我们将其构建成镜像ubuntu:v1.2，下面我们创建并启动容器：</p>
+<p><code>docker run -it ubuntu:v1.2</code></p>
+<p>将会在控制台输出我们相应的公网IP信息！此时，如果我们还需要获取HTTP头信息时，我们可以这样：</p>
+<p><code>docker run -it ubuntu:v1.2 -i</code></p>
+<p>此时，将会在控制台中将公网IP信息以及HTTP头信息全部输出！我们知道，docker run命令中紧跟在镜像后面的是CMD指令命令，运行时会替换默认的CMD指令。因为我们在Dockerfile中指定了ENTRYPOINT指令，根据ENTRYPOINT指令的特性知道，当指定了ENTRYPOINT指令，CMD指令的内容将会以参数的形式传递给ENTRYPOINT，所以在容器中最终执行的命令是curl -s -i <a href="http://ip.cn">http://ip.cn</a>，-i参数被传递到ENTRYPOINT中，所以最终在控制台中会输出HTTP头信息！！！</p>
+<p><strong>EXPOSE</strong></p>
+<p>设置容器运行时对外开放的端口。</p>
+<p>指令语法：</p>
+<p><code>EXPOSE &lt;port&gt; [&lt;port&gt;...]</code></p>
+<p>eg：</p>
+<p><code>EXPOSE 80</code></p>
+<p><strong>WORKDIR</strong></p>
+<p>WORKDIR 用于配合 RUN，CMD，ENTRYPOINT 命令设置容器的工作路径。，可以在构建镜像的时候使用，也可以在启动容器的时候使用，构建使用是通过WORKDIR将当前目录切换到指顶目录中，可以理解为shell的cd，启动容器的时候使用的意思为 docker run 启动容器时，默认进入到目录是WORKDIR 指定的。可以设置多次，如果是相对路径，则相对前一个 WORKDIR 命令。默认路径为/。WORKDIR指令可以通过<code>docker run</code>命令中的<code>-w</code>参数来进行覆盖。</p>
+<p>指令语法：</p>
+<p><code>WORKDIR /path/to/workdir</code></p>
+<p>eg:</p>
+<p><code>WORKDIR /usr/local/nginx</code>
+<code>WORKDIR /app</code></p>
+<p><strong>ENV</strong></p>
+<p>设置环境变量，可以是在构建镜像时使用，也可以在运行中的容器使用。</p>
+<p>指令语法：</p>
+<p><code>ENV &lt;key&gt; &lt;value&gt;</code></p>
+<p><strong>ARG</strong></p>
+<p>构建参数ARG和ENV指令一样，都是设置环境变量。与之不同的是，ARG设置的环境变量只是在镜像构建时所设置的，在将来容器运行时是不会存在这些环境变量的。但是不要因此就用ARG来保存密码之类的信息，因为通过docker history还是能够看得到的。ARG指令与ENV指令的使用类似.</p>
+<p>eg:</p>
+<pre><code class="language-shell">    FROM ubuntu:16.04
+    ARG app="python-pip"
+    RUN apt-get update &amp;&amp; apt-get install -y $app &amp;&amp; rm -rf /var/lib/apt/lists/*
+</code></pre>
+<p>ARG构建参数可以通过docker run命令中的--build-arg参数来进行覆盖。</p>
+<p><strong>USER</strong></p>
+<p>USER指令用于将会用以什么样的用户去运行，例如：</p>
+<pre><code class="language-shell">FROM ubuntu:16.04
+USER docker
+</code></pre>
+<p>基于该镜像启动的容器会以docker用户的身份来运行，我们可以指定用户名或者UID，组名或者GID，或者两者的结合。USER指令可以在docker run命令中的-u参数进行覆盖</p>
+<p>eg:</p>
+<pre><code class="language-shell">FROM ubuntu:16.04
+USER user
+USER user:group
+USER uid
+USER uid:gid
+USER user:gid
+USER uid:group
+</code></pre>
+<p><strong>VOLUME</strong></p>
+<p>设置容器挂载数据卷，容器运行时应尽量保持容器内不发生任何写入操作，对于需要保存动态数据的应用，其数据文件应该将其保存在数据卷中(VOLUME)</p>
+<p>指令语法：</p>
+<pre><code class="language-shell">VOLUME &lt;路径&gt;
+VOLUME ["&lt;路径&gt;","&lt;路径&gt;",...]
+</code></pre>
+<p>eg:</p>
+<pre><code class="language-shell">    VOLUME /data/
+    VOLUME ["/data","/command"]
+</code></pre>
+<p>这里的/data和/command目录在容器运行时会自动挂载为匿名卷，任何向/data和/command目录中写入的信息都不会记录进容器存储层，从而保证了容器存储层的无状态化！容器匿名卷目录指定可以通过<code>docker run</code>命令中指定<code>-v</code>参数来进行覆盖</p>
+<p><strong>HEALTHCHECK</strong></p>
+<p>HEALTHECHECK指令是告诉Docker该如何判断容器的状态是否正常，这是1.12引入的新指令，其格式有两种：</p>
+<pre><code class="language-shell">HEALTHCHECK [options] CMD &lt;命令&gt;：检查容器健康状态的命令
+HEALTHCHECK NONE：如果基础镜像有健康检查指令，这一行将会屏蔽掉其健康检查指令
+</code></pre>
+<p>HEALTHECHECK支持下列选项：</p>
+<ul>
+<li>–interval=&lt;间隔&gt;：两次检查的时间间隔，默认为30s</li>
+<li>–timeout=&lt;时长&gt;：健康检查命令运行超时时间，如果超过这个时间，本次健康检查将会判定为失败，默认为30s</li>
+<li>–retries=&lt;次数&gt;：当连续失败指定次数之后，则将容器状态视为<code>unhealthy</code>，默认为3次</li>
+</ul>
+<p>在没有<code>HEALTHCHECK</code>指令之前，Docker引擎只可以通过容器内主进程是否退出来判断容器状态是否异常。很多情况下这没有问题，但是如果程序进入了死锁状态，或者死循环状态，应用进程并不退出，但是该容器已经无法继续提供服务了。在1.12之前，Docker引擎不会检测到容器的这种状态，从而不会重新调度，导致可能容器已经无法提供服务了却仍然还在接收用户的请求。</p>
+<p>假设我们有个镜像是最简单的Web服务，我们希望增加健康检查来判断Web服务是否在正常工作，我们可以用<code>curl</code>来帮助判断，其<code>Dockerfile</code>的<code>HEALTHCHECK</code>可以这么写：</p>
+<pre><code class="language-shell">FROM nginx
+RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; rm -rf /var/lib/apt/lists/*
+HEALTHCHECK --interval=5s --timeout=3s CMD curl -fs http://localhost/ || exit 1
+</code></pre>
+<p>接下来，我们将该Dockerfile编译构建成一个镜像，并以此镜像为基础创建并启动一个容器。此时，我们使用<code>docker container ls</code>命令来查看容器的状态，如下：</p>
+<pre><code class="language-shell">root@ubuntu:~/docker# docker container ls
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                   PORTS                NAMES
+036b91eea00d        nginx:v1.2          "nginx -g 'daemon of…"   7 seconds ago       Up 6 seconds (healthy)   0.0.0.0:80-&gt;80/tcp   web
+</code></pre>
+<p>我们再<code>STATUS</code>这一列中可以看到，状态未<code>healthy</code>。如果我们快速的多次执行<code>docker container ls</code>的话，会发现<code>STATUS</code>状态是由<code>health: starting</code>最后变为<code>healthy</code>，当然如果容器未在正常工作，最后的状态将会变为<code>unhealthy</code></p>
+<p>这里，我们设置了每5s检查一次，如果检查时间超过3s没有响应就视为失败。||符号左边的命令执行结果为假，右边的命令才会执行！</p>
+<p>为了帮助排除故障，健康检查命令的输出会被存储于健康状态里，我们可以使用<code>docker inspect</code>命令来进行查看：</p>
+<pre><code class="language-shell">root@ubuntu:~/docker# docker inspect --format '{{json .State.Health}}' web | python3 -m json.tool
+{
+    "Status": "healthy",
+    "FailingStreak": 0,
+    "Log": [
+        {
+            "Start": "2018-07-17T21:15:05.900643297+08:00",
+            "End": "2018-07-17T21:15:05.968989028+08:00",
+            "ExitCode": 0,
+            "Output": "&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n&lt;title&gt;Welcome to nginx!&lt;/title&gt;\n&lt;style&gt;\n    body {\n        width: 35em;\n        margin: 0 auto;\n        font-family: Tahoma, Verdana, Arial, sans-serif;\n    }\n&lt;/style&gt;\n&lt;/head&gt;\n&lt;body&gt;\n&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;\n&lt;p&gt;If you see this page, the nginx web server is successfully installed and\nworking. Further configuration is required.&lt;/p&gt;\n\n&lt;p&gt;For online documentation and support please refer to\n&lt;a href=\"http://nginx.org/\"&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;\nCommercial support is available at\n&lt;a href=\"http://nginx.com/\"&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;\n\n&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n"
+        }
+    ]
+}
+</code></pre>
+<p>和<code>CMD</code>、<code>NETRYPOINT</code>一样，<code>HEALTHCHECK</code>指令只可以出现一次，如果有多个<code>HEALTHCHEC</code>K指令，那么只有最后一个才会生效！！！</p>
+<p><strong>ONBUILD</strong></p>
+<p><code>ONBUILD</code>是一个特殊的指令，它后面跟着的是其他指令，比如<code>COPY</code>、<code>RUN</code>等，而这些命令在当前镜像被构建时，并不会被执行。只有以当前镜像为基础镜像去构建下一级镜像时，才会被执行。格式为：<code>ONBUILD &lt;其他指令&gt;</code></p>
+<p><code>Dockerfile</code>中的其他指令都是为了构建当前镜像准备的，只有<code>ONBUILD</code>指令是为了帮助别人定制而准备的。例如：</p>
+<pre><code class="language-shell">from ubuntu:16.04
+WORKDIR /data
+ONBUILD RUN mkdir test
+</code></pre>
+<p>此时，我们以此<code>Dockerfile</code>进行构建镜像<code>ubuntu:test</code>，并以此镜像为基础创建并启动一个容器，进入容器后，容器会自动切换到<code>WORKDIR</code>指令下的目录，此时我们使用<code>ls</code>命令会发现在工作目录下，并未创建<code>test</code>文件夹，如下：</p>
+<pre><code class="language-shell">root@ubuntu:~/docker# docker run -it ubuntu:test
+root@3a8f912fd23b:/data# ls
+root@3a8f912fd23b:/data#
+</code></pre>
+<p>此时，我们再创建一个<code>Dockerfile</code>，只需一个<code>FROM</code>指令即可，使其继承刚刚我们构建的<code>ubuntu:test</code>镜像，如下：</p>
+<p><code>FROM ubuntu:test</code></p>
+<p>我们再以此<code>Dockerfile</code>构建镜像<code>ubuntu:test_onbuild</code>，并以此镜像为基础创建并启动一个容器，进入容器后，容器会自动切换到<code>WORKDIR</code>指令下的目录，此时我们使用<code>ls</code>命令会发现在工作目录下，已经创建好了一个名为<code>test</code>的文件夹，如下：</p>
+<pre><code class="language-shell">root@ubuntu:~/docker# docker run -it ubuntu:test_onbuild
+root@5394e605b6ea:/data# ls
+test
+</code></pre>
+<p><strong>LABEL</strong></p>
+<p><code>LABEL</code>指令可以为镜像指定标签，其格式为：<code>LABEL &lt;key1&gt;=&lt;value1&gt; &lt;key2&gt;=&lt;value2&gt; ...</code></p>
+<p><code>LABEL</code>后面是键值对，多个键值对以空格进行隔开，如果value中包含空格，请使用<code>&quot;&quot;</code>将value进行圈起来，如下：</p>
+<pre><code class="language-shell">FROM ubuntu:16.04
+LABEL name=test
+LABEL description="a container is used to test"
+</code></pre>
+<p>我们知道，<code>DockerFile</code>的每一个指令都会新构建一层，所以，上面的<code>LABEL</code>我们可以写成一条指令，用空格进行隔开，如下：</p>
+<pre><code class="language-shell">FROM ubuntu:16.04
+LABEL name=test description="a container is used to test"
+</code></pre>
+<p>为了美观，我们还可以使用<code>\</code>符号进行换行操作。</p>
+<p>要查看镜像的标签，我们可以使用<code>docker inspect</code>命令，如下：</p>
+<pre><code class="language-shell">root@ubuntu:~# docker inspect --format '{{json .Config.Labels}}' test | python3 -m json.tool 
+{
+    "description": "a container is used to test",
+    "name": "test"
+}
+</code></pre>
+<p>其中“test”为容器名称！</p>
+<p>值得注意的是，这里的标签并非是我们一开始将镜像名称中的<code>&lt;仓库&gt;:&lt;标签&gt;</code>，这两者是不一样的！这里标签，类似于签条，注解之类的意思</p>
+<p><strong>MAINTAINER</strong></p>
+<p>MAINTAINER 描述镜像创建者信息。已经被弃用，可以使用LABEL指令进行替代。</p>
+<p>指令语法:</p>
+<p><code>MAINTAINER &lt;name&gt;</code></p>
+<p>eg:</p>
+<p><code>MAINTAINER HelloWord &lt;lzxingg@gmail.com&gt;</code></p>
+<h2>Dockerfile 构建镜像demo1</h2>
+<p>以下是一个安装tomcat+jdk的dockerfile</p>
+<pre><code class="language-shell"><span class="hljs-meta">#</span><span class="bash"> 引用一个centos为基础镜像</span>
+FROM centos:v1
+<span class="hljs-meta">
+#</span><span class="bash"> 将tomcat和jdk压缩包复制到/usr/<span class="hljs-built_in">local</span>下</span>
+ADD jdk-8u60-linux-x64.tar.gz /usr/local
+ADD apache-tomcat-6.0.53.tar.gz /usr/local
+<span class="hljs-meta">
+#</span><span class="bash"> 设置jdk的环境变量相当于更改/etc/profile文件</span>
+ENV JAVA_HOME /usr/local/jdk1.8.0_60
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV CATALINA_HOME=/usr/local/apache-tomcat-6.0.53
+ENV PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin
+<span class="hljs-meta"> 
+#</span><span class="bash"> 暴露容器端口为8080</span>
+EXPOSE 8080
+<span class="hljs-meta">
+#</span><span class="bash"> 在docker run 的时候执行catalina.sh 来启动tomcat</span>
+CMD ["catalina.sh","run"]
+</code></pre>
+<h2>Dockerfile 构建镜像demo2</h2>
+<p>构建Dockerfile
+我们大体已经把Dockerfile的写法讲述完毕，我们可以自己动手写一个例子：</p>
+<p><code>mkdir static_web &amp;&amp; cd $_ &amp;&amp; touch Dockerfile</code></p>
+<p>编辑Dockerfile内容</p>
+<pre><code class="language-shell">FROM nginx
+MAINTAINER docker_demo &lt;lzxingg@gmail.com&gt;
+RUN echo '&lt;h1&gt;Hello, Docker!&lt;/h1&gt;' &gt; /usr/share/nginx/html/index.html
+</code></pre>
+<p>在<code>Dockerfile</code>文件所在目录执行：</p>
+<p><code>docker build -t dockerdemo/nginx_web:v1 .</code></p>
+<p>-t 是为新镜像设置仓库和名称，其中 dockerdemo 为仓库名， nginx_web 为镜像名， :v1为标签（不添加为默认 latest ）, <code>.</code>是 Dockerfile的相对位置</p>
+<p>我们构建完成之后，使用 <code>docker images</code> 命令查看所有镜像，如果存在 <code>REPOSITORY</code> 为 <code>nginx</code> 和 <code>TAG</code> 是 <code>v1</code> 的信息，就表示构建成功。</p>
+<p>接下来使用 <code>docker run</code> 命令来启动容器</p>
+<p><code>docker run --name nginx_web -d -p 8080:80 dockerdemo/nginx_web:v1</code></p>
+<p>这条命令会用 nginx 镜像启动一个容器，命名为 nginx_web ，并且映射了 8080 端口，这样我们可以用浏览器去访问这个 nginx 服务器：<a href="http://localhost:8080/">http://localhost:8080/</a> 或者 <a href="http://xn--IP-im8ckcs54iocs38k:8080/">http://本机的IP地址:8080/</a></p>
+<p><strong>构建镜像</strong></p>
+<pre><code>docker commit 通过容器构建(不推荐)
+
+    docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+        -a, --author=“”         指定作者
+        -m, --meaasge=“”     备注信息
+        -p, --pause=true        Pause container during commit
+
+docker build 通过 Dockerfile 文件构建(推荐)
+    docker build [OPTIONS]  PATH | URL | -
+        --force-rm = false
+        --no-cache = false
+        --pull = false
+        -q，--quiet = false
+        --rm = true
+        -t，--tag = “”
+</code></pre>
+<p><strong>推送</strong></p>
+<p><code>docker push NAME[:TAG]</code></p>
+</section><footer class="footer-container"><div class="footer-body"><div class="copyright"><span>Copyright © 2019 刘志新</span></div></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/blogDetail.js"></script>
+</body>
+</html>
