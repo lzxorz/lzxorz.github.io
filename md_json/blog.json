@@ -77,14 +77,6 @@
       }
     },
     {
-      "filename": "blog3.md",
-      "link": "/zh-cn/blog/blog3.html",
-      "meta": {
-        "key1": "hello",
-        "key2": "world"
-      }
-    },
-    {
       "filename": "resume.md",
       "link": "/zh-cn/blog/resume.html",
       "meta": {

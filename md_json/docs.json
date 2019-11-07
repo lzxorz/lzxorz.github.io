@@ -25,6 +25,15 @@
         "keywords": "Freeman,快速开发框架",
         "description": "Freeman快速开发框架"
       }
+    },
+    {
+      "filename": "doc2.md",
+      "link": "/zh-cn/docs/doc2.html",
+      "meta": {
+        "title": "Dao框架文档",
+        "keywords": "Freeman,jpa-plus",
+        "description": "jpa-plus"
+      }
     }
   ]
 }

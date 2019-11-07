@@ -27,7 +27,7 @@ export default {
             link: '/zh-cn/docs/doc1.html',
           },
           {
-            title: 'dao文档',
+            title: 'Dao框架文档',
             link: '/zh-cn/docs/doc2.html',
           },
         ],
