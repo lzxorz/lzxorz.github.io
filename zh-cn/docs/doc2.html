@@ -67,6 +67,8 @@
 </code></pre>
 <hr>
 <h3>jpa-plus使用说明</h3>
+<pre><code>像原生sql一样简单,像原生sql一样复杂
+</code></pre>
 <p>sevice层的方法中</p>
 <pre><code class="language-java">NativeSqlQuery nativeSql = NativeSqlQuery.builder()
     .select(查询的列) <span class="hljs-comment">//必有</span>
@@ -108,6 +110,8 @@
 <h3>jpa-plus用法示例</h3>
 <p>sevice层的方法中</p>
 <pre><code class="language-java"> 
+    <span class="hljs-comment">// 像原生sql一样简单. 也可以原生sql一样写到很复杂</span>
+    
     Object createTime = jobLog.getParams(<span class="hljs-string">"createTime"</span>); <span class="hljs-comment">//传进来是创建起止时间的数组</span>
 
     NativeSqlQuery nativeSql = NativeSqlQuery.builder()
@@ -149,20 +153,19 @@ dao.findAll(sort);
 </code></pre>
 <hr>
 <p><strong>PageUtil、SortUtil</strong></p>
-<p>查询需要排序或分页, 但是这些参数不是前端传过来的, 本来JPA干这事儿就是个高手, 但是, 还能更优秀;
-支持多字段排序是必须的, 而且做到了 看一眼就知道怎么用;</p>
+<p>查询需要排序或分页, 但是这些参数不是前端传过来的。JPA本来就是这方面的高手, 但是, 还能更优秀。
+PageUtil可以更简单构建多字段排序的PageRequest。</p>
 <p>代码片段示例:</p>
-<pre><code class="language-java"><span class="hljs-comment">// 如果分页参数, 有默认备用值`pageNo`=0,`pageSize`=20;</span>
-PageRequest pageRequest = PageUtil.builder().pageNo(<span class="hljs-number">0</span>).pageSize(<span class="hljs-number">20</span>).asc(<span class="hljs-string">"age"</span>).desc(<span class="hljs-string">"createTime"</span>).build();
+<pre><code class="language-java"><span class="hljs-comment">// 如果需要分页参数, PageUtil有默认备用值`pageNo`=0,`pageSize`=20;</span>
+PageRequest pageRequest = PageUtil.builder().pageNo(<span class="hljs-number">0</span>).pageSize(<span class="hljs-number">50</span>).asc(<span class="hljs-string">"age"</span>).desc(<span class="hljs-string">"createTime"</span>).build();
 
-<span class="hljs-comment">// 如果只需要分页 不需要排序 // 当然是jpa 自带写法 更简单</span>
-<span class="hljs-comment">//PageRequest pageRequest = PageUtil.builder().pageNo(0).pageSize(20).build();</span>
+<span class="hljs-comment">// 如果只需要分页 不需要排序 // 应该用jpa 自带写法</span>
 PageRequest pageRequest = PageRequest.of(<span class="hljs-number">1</span>,<span class="hljs-number">30</span>);
 
 <span class="hljs-comment">// 如果只需要排序 不需要分页 // getSort();</span>
 Sort sort = PageUtil.builder().asc(<span class="hljs-string">"age"</span>).desc(<span class="hljs-string">"createTime"</span>).build().getSort();
 
-<span class="hljs-comment">// 如果只需要排序 不需要分页 // 也可以使用只处理工具类 SortUtil</span>
+<span class="hljs-comment">// 如果只需要排序 不需要分页 // 也可以使用工具类 SortUtil</span>
 Sort sort = SortUtil.builder().asc(<span class="hljs-string">"age"</span>).desc(<span class="hljs-string">"createTime"</span>).build();
 </code></pre>
 <hr>
