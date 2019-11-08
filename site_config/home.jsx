@@ -20,7 +20,7 @@ export default {
     },
     introduction: {
       title: '开源产品的介绍',
-      desc: '开源产品的简单介绍，提供一些该产品的优点、特性描述等',
+      desc: 'Freeman是基于 Spring Boot2 + Spring data Jpa + Shiro + Vue2 + JWT 的前后端分离的敏捷开发框架。简单高效、功能强大、零学习成本的Dao层(基于JPA封装)。 对Shiro和JWT进行以“更简单好用”为目的的封装集成',
       // img: '/img/architecture.png',
     },
     features: {
