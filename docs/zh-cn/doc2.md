@@ -1,5 +1,5 @@
 ---
-title: Dao框架文档
+title: Dao框架
 keywords: Freeman,jpa-plus
 description: jpa-plus
 ---
