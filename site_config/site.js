@@ -81,11 +81,11 @@ export default {
         text: '博客',
         link: '/zh-cn/blog/index.html',
       },
-      {
-        key: 'resume',
-        text: '个人简历',
-        link: '/zh-cn/blog/resume.html',
-      },
+      // {
+      //   key: 'resume',
+      //   text: '个人简历',
+      //   link: '/zh-cn/blog/resume.html',
+      // },
       // {
       //   key: 'community',
       //   text: '社区',
